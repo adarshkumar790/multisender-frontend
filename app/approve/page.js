@@ -16,56 +16,53 @@ export default function Approve() {
   const [insufficientETH, setInsufficientETH] = useState(false); // State to track insufficient ETH
 
   useEffect(() => {
+    // Retrieve data passed from the Home component
     const validData = searchParams.get("validAddresses");
     const invalidData = searchParams.get("invalidAddresses");
     if (validData) setValidAddresses(JSON.parse(validData));
     if (invalidData) setInvalidAddresses(JSON.parse(invalidData));
-  
-    if (typeof window.ethereum !== "undefined") {
-      const provider = new ethers.providers.Web3Provider(window.ethereum); // Correct usage
-      const fetchBalance = async () => {
-        try {
-          await provider.send("eth_requestAccounts", []); // Ensure accounts are unlocked
-          const accounts = await provider.listAccounts();
-          const balance = await provider.getBalance(accounts[0]);
-          setAccountETH(parseFloat(ethers.utils.formatEther(balance)));
-        } catch (error) {
-          console.error("Error fetching balance:", error);
-        }
-      };
-      fetchBalance();
-    } else {
-      console.error("Ethereum provider not found. Install MetaMask.");
-    }
-  }, [searchParams]);
-  
 
+    // Set up Ethereum provider
+    const initProvider = new ethers.BrowserProvider(window.ethereum);
+    setProvider(initProvider);
+
+    // Get account and balance
+    const getAccountInfo = async () => {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      setUserAddress(accounts[0]);
+      const balance = await initProvider.getBalance(accounts[0]);
+      setAccountETH(ethers.formatEther(balance));
+    };
+
+    getAccountInfo();
+  }, [searchParams]);
+
+  // Calculate total ETH of all recipients and check if balance is sufficient
   useEffect(() => {
-    const total = validAddresses.reduce((sum, { amount }) => sum + parseFloat(amount), 0);
+    let total = 0;
+    validAddresses.forEach((entry) => {
+      total += parseFloat(entry.amount);
+    });
     setTotalETH(total);
-    setInsufficientETH(total > accountETH);
+
+    // Check if totalETH is greater than accountETH
+    setInsufficientETH(total > parseFloat(accountETH));
   }, [validAddresses, accountETH]);
 
-  const proceedToMultisend = () => {
-    router.push({
-      pathname: "/multisend",
-      query: { validAddresses: JSON.stringify(validAddresses) },
-    });
-  };
   const goBack = () => {
     router.push("/");
   };
 
-  // const proceedToMultisend = () => {
-  //   setStatus("Approve");
-  //   setTimeout(() => {
-  //     setStatus("Multisend");
-  //     router.push({
-  //       pathname: "/multisend",
-  //       query: { validAddresses: JSON.stringify(validAddresses) },
-  //     });
-  //   }, 1000); // Simulate processing time for approval
-  // };
+  const proceedToMultisend = () => {
+    setStatus("Approve");
+    setTimeout(() => {
+      setStatus("Multisend");
+      router.push({
+        pathname: "/multisend",
+        query: { validAddresses: JSON.stringify(validAddresses) },
+      });
+    }, 1000); // Simulate processing time for approval
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 text-white">

@@ -218,7 +218,7 @@ export default function Home() {
                 }}
               >
                 <button className="bg-green-500 hover:bg-green-600 text-white w-full font-bold py-2 rounded-xl">
-                  Continue to Approve
+                  Continue
                 </button>
               </Link>
             ) : (
