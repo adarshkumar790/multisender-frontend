@@ -1,9 +1,17 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { ethers } from "ethers";
 
 export default function Approve() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <ApproveContent />
+    </Suspense>
+  );
+}
+
+function ApproveContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [validAddresses, setValidAddresses] = useState([]);
@@ -13,12 +21,15 @@ export default function Approve() {
   const [accountETH, setAccountETH] = useState(0);
   const [provider, setProvider] = useState(null);
   const [userAddress, setUserAddress] = useState("");
-  const [insufficientETH, setInsufficientETH] = useState(false); // State to track insufficient ETH
+  const [insufficientETH, setInsufficientETH] = useState(false);
 
   useEffect(() => {
-    // Retrieve data passed from the Home component
+    // Ensure searchParams is available before accessing it
+    if (!searchParams) return;
+
     const validData = searchParams.get("validAddresses");
     const invalidData = searchParams.get("invalidAddresses");
+
     if (validData) setValidAddresses(JSON.parse(validData));
     if (invalidData) setInvalidAddresses(JSON.parse(invalidData));
 
@@ -186,9 +197,16 @@ function Step({ stepNumber, label, isActive }) {
 function RecipientRow({ address, amount }) {
   return (
     <div className="flex justify-between items-center py-2 border-b border-gray-700">
-      
       <span className="text-sm truncate">{address}</span>
       <span className="text-sm font-medium">{amount}</span>
+    </div>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#1e293b] to-[#0F123D] text-white">
+      <p>Loading...</p>
     </div>
   );
 }
