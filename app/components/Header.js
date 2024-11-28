@@ -104,7 +104,7 @@ export default function Header() {
       </div>
 
       
-      {showResult && (
+      {/* {showResult && (
         <div className="p-4">
           <h2 className="text-lg font-bold">Token Balances:</h2>
           <ul>
@@ -115,7 +115,7 @@ export default function Header() {
             ))}
           </ul>
         </div>
-      )}
+      )} */}
     </header>
   );
 }

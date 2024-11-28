@@ -14,6 +14,10 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
   const [ethBalance, setEthBalance] = useState("");
   const [csvError, setCsvError] = useState(false);
+  const [tokens, setTokens] = useState([]);
+  const [selectedToken, setSelectedToken] = useState("");
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+
 
   // Update line numbers dynamically whenever csvText changes
   useEffect(() => {
@@ -79,6 +83,12 @@ export default function Home() {
     return { valid, invalid };
   };
 
+  useEffect(() => {
+    if (walletAddress) {
+      fetchTokens(walletAddress);
+    }
+  }, [walletAddress]);
+
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
@@ -94,6 +104,29 @@ export default function Home() {
     } else {
       alert("MetaMask is not installed. Please install it to connect.");
     }
+  };
+
+  const fetchTokens = async (address) => {
+    const chain = EvmChain.ETHEREUM;
+
+    await Moralis.start({
+      apiKey: "YOUR_API_KEY", // Replace with your Moralis API key
+    });
+
+    try {
+      const response = await Moralis.EvmApi.token.getWalletTokenBalances({
+        address,
+        chain,
+      });
+      setTokens(response.toJSON());
+    } catch (error) {
+      console.error("Error fetching tokens:", error);
+    }
+  };
+
+  const handleTokenClick = (token) => {
+    setSelectedToken(token.symbol);
+    setDropdownVisible(false);
   };
 
   const csvExample = [
@@ -142,6 +175,8 @@ export default function Home() {
           <div className="w-full mb-6">
             <label className="block text-xs font-bold mb-2">Token Address</label>
             <div className="flex items-center gap-2">
+               <div className="relative w-full">
+            <div className="flex items-center">
               <div className="relative w-full">
                 <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 text-lg">
                   <FaCoins />
@@ -150,8 +185,30 @@ export default function Home() {
                   type="text"
                   placeholder="Select your Token"
                   className="w-full bg-[#0F123D] text-white px-10 py-2 rounded border border-gray-500"
+                  value={selectedToken}
+                  onClick={() => setDropdownVisible(!dropdownVisible)}
+                  readOnly
                 />
               </div>
+            </div>
+            {dropdownVisible && (
+              <div className="absolute w-full bg-[#1e293b] text-white border border-gray-600 rounded-md mt-2 max-h-60 overflow-y-auto z-10">
+                {tokens.map((token, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+                    onClick={() => handleTokenClick(token)}
+                  >
+                    {token.symbol}:{" "}
+                    {parseFloat(token.balance) / Math.pow(10, token.decimals)}{" "}
+                    {token.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        
+      
               <div>
                 <input type="checkbox" id="deflationary" className="mr-2" />
                 <label htmlFor="deflationary">Deflationary</label>
