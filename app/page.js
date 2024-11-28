@@ -202,6 +202,7 @@ export default function Home() {
                     {token.symbol}:{" "}
                     {parseFloat(token.balance) / Math.pow(10, token.decimals)}{" "}
                     {token.name}
+                    {token.address}
                   </div>
                 ))}
               </div>
@@ -281,7 +282,7 @@ export default function Home() {
             ) : (
               <button
                 onClick={connectWallet}
-                className="bg-blue-800 hover:bg-blue-600 text-white w-full font-bold py-2 rounded-xl"
+                className="bg-sky-500/50 hover:bg-blue-600 text-white w-full font-bold py-2 rounded-xl"
               >
                 Connect Wallet
               </button>
