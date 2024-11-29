@@ -206,8 +206,9 @@ export default function Home() {
                   className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-4"
                   onClick={() => handleTokenClick(token)}
                 >
-                  <span className="font-bold">{token.symbol}</span>
                   <span className="text-xs text-gray-100">{token.name}</span>
+                  <span className="font-bold">{token.symbol}</span>
+                  
                   <span className="text-sm text-gray-100">
                     {parseFloat(token.balance) / Math.pow(10, token.decimals)}
                   </span>
