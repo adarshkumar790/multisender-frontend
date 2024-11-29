@@ -4,6 +4,8 @@ import { FaCrown, FaEthereum, FaCoins, FaFileCsv } from "react-icons/fa"; // Imp
 import Image from "next/image"; // For MetaMask logo
 import Web3 from "web3";
 import Link from "next/link";
+import Moralis from "moralis";
+import { EvmChain } from "@moralisweb3/common-evm-utils";
 
 export default function Home() {
   const [csvFile, setCsvFile] = useState(null);
@@ -83,31 +85,8 @@ export default function Home() {
     return { valid, invalid };
   };
 
-  useEffect(() => {
-    if (walletAddress) {
-      fetchTokens(walletAddress);
-    }
-  }, [walletAddress]);
-
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const accounts = await web3.eth.getAccounts();
-        const balance = await web3.eth.getBalance(accounts[0]);
-        setWalletAddress(accounts[0]);
-        setEthBalance(web3.utils.fromWei(balance, "ether"));
-      } catch (error) {
-        console.error("Error connecting to MetaMask:", error);
-      }
-    } else {
-      alert("MetaMask is not installed. Please install it to connect.");
-    }
-  };
-
   const fetchTokens = async (address) => {
-    const chain = EvmChain.ETHEREUM;
+    const chain = EvmChain.HOLESKY;
 
     await Moralis.start({
       apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijk2Yzg5ZjcwLWRiN2UtNDE3MC05Y2UxLTZmZGFmNDkwYjg4NCIsIm9yZ0lkIjoiMzA2NjUyIiwidXNlcklkIjoiMzE1MDIwIiwidHlwZUlkIjoiMGYxNzcxMjMtYzVkZC00MTY3LWE0NzYtZjM0NWEyMzNkZmNmIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODczMjE3MDcsImV4cCI6NDg0MzA4MTcwN30.H_LYqFvB7WFYf0kn7eVU_EIy1YzRFivFyhhz84hr8nM", // Replace with your Moralis API key
@@ -118,14 +97,42 @@ export default function Home() {
         address,
         chain,
       });
-      setTokens(response.toJSON());
+
+      const tokenData = response.toJSON();
+      setTokens(tokenData); // Save tokens in state
+      console.log(tokenData);
     } catch (error) {
-      console.error("Error fetching tokens:", error);
+      console.error("Error fetching token balances:", error);
     }
   };
 
+  // Connect wallet using MetaMask
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const accounts = await web3.eth.getAccounts();
+        const balance = await web3.eth.getBalance(accounts[0]);
+        const userAddress = accounts[0];
+
+        setWalletAddress(userAddress);
+        setEthBalance(web3.utils.fromWei(balance, "ether"));
+
+        // Fetch token balances
+        fetchTokens(userAddress);
+        // setShowWalletOptions(false); // Close modal after connection
+      } catch (error) {
+        console.error("Error connecting to MetaMask:", error);
+      }
+    } else {
+      alert("MetaMask is not installed. Please install it to connect.");
+    }
+  };
+
+  // Handle token selection
   const handleTokenClick = (token) => {
-    setSelectedToken(token.symbol);
+    setSelectedToken(token.name);
     setDropdownVisible(false);
   };
 
@@ -193,19 +200,21 @@ export default function Home() {
             </div>
             {dropdownVisible && (
               <div className="absolute w-full bg-[#1e293b] text-white border border-gray-600 rounded-md mt-2 max-h-60 overflow-y-auto z-10">
-                {tokens.map((token, index) => (
-                  <div
-                    key={index}
-                    className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
-                    onClick={() => handleTokenClick(token)}
-                  >
-                    {token.symbol}:{" "}
-                    {parseFloat(token.balance) / Math.pow(10, token.decimals)}{" "}
-                    {token.name}
-                    {token.address}
-                  </div>
-                ))}
-              </div>
+              {tokens.map((token, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-4"
+                  onClick={() => handleTokenClick(token)}
+                >
+                  <span className="font-bold">{token.symbol}</span>
+                  <span className="text-xs text-gray-100">{token.name}</span>
+                  <span className="text-sm text-gray-100">
+                    {parseFloat(token.balance) / Math.pow(10, token.decimals)}
+                  </span>
+                </div>
+              ))}
+            </div>
+            
             )}
           </div>
         

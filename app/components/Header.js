@@ -12,26 +12,29 @@ export default function Header() {
   const [ethBalance, setEthBalance] = useState("");
   const [showWalletOptions, setShowWalletOptions] = useState(false);
   const [provider, setProvider] = useState(null);
+  const [tokens, setTokens] = useState([]); // State to store token information
 
   // Fetch tokens by wallet address
-  const fetchTokens = async (address) => {
-    const chain = EvmChain.ETHEREUM;
+  // const fetchTokens = async (address) => {
+  //   const chain = EvmChain.HOLESKY;
 
-    await Moralis.start({
-      apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijk2Yzg5ZjcwLWRiN2UtNDE3MC05Y2UxLTZmZGFmNDkwYjg4NCIsIm9yZ0lkIjoiMzA2NjUyIiwidXNlcklkIjoiMzE1MDIwIiwidHlwZUlkIjoiMGYxNzcxMjMtYzVkZC00MTY3LWE0NzYtZjM0NWEyMzNkZmNmIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODczMjE3MDcsImV4cCI6NDg0MzA4MTcwN30.H_LYqFvB7WFYf0kn7eVU_EIy1YzRFivFyhhz84hr8nM", // Replace with your Moralis API key
-    });
+  //   await Moralis.start({
+  //     apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijk2Yzg5ZjcwLWRiN2UtNDE3MC05Y2UxLTZmZGFmNDkwYjg4NCIsIm9yZ0lkIjoiMzA2NjUyIiwidXNlcklkIjoiMzE1MDIwIiwidHlwZUlkIjoiMGYxNzcxMjMtYzVkZC00MTY3LWE0NzYtZjM0NWEyMzNkZmNmIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODczMjE3MDcsImV4cCI6NDg0MzA4MTcwN30.H_LYqFvB7WFYf0kn7eVU_EIy1YzRFivFyhhz84hr8nM", // Replace with your Moralis API key
+  //   });
 
-    try {
-      const response = await Moralis.EvmApi.token.getWalletTokenBalances({
-        address,
-        chain,
-      });
+  //   try {
+  //     const response = await Moralis.EvmApi.token.getWalletTokenBalances({
+  //       address,
+  //       chain,
+  //     });
 
-      console.log(response.toJSON());
-    } catch (error) {
-      console.error("Error fetching token balances:", error);
-    }
-  };
+  //     const tokenData = response.toJSON();
+  //     setTokens(tokenData); // Save tokens in state
+  //     console.log(tokenData);
+  //   } catch (error) {
+  //     console.error("Error fetching token balances:", error);
+  //   }
+  // };
 
   // Connect wallet using MetaMask
   const connectMetaMask = async () => {
@@ -47,7 +50,7 @@ export default function Header() {
         setEthBalance(web3.utils.fromWei(balance, "ether"));
 
         // Fetch token balances
-        fetchTokens(userAddress);
+        // fetchTokens(userAddress);
         setShowWalletOptions(false); // Close modal after connection
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
@@ -92,6 +95,7 @@ export default function Header() {
     }
     setWalletAddress("");
     setEthBalance("");
+    setTokens([]); // Clear tokens on disconnect
   };
 
   return (
@@ -135,37 +139,47 @@ export default function Header() {
 
       {/* Modal Section */}
       {showWalletOptions && (
-  <div className="fixed inset-0 bg-[#0F123D] bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-gray-700 rounded-lg p-6 w-96 relative">
-      
-      <button
-        onClick={() => setShowWalletOptions(false)}
-        className="absolute top-2 right-2 text-white text-xl hover:text-gray-100"
-      >
-        &times; 
-      </button>
+        <div className="fixed inset-0 bg-[#0F123D] bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-gray-700 rounded-lg p-6 w-96 relative">
+            <button
+              onClick={() => setShowWalletOptions(false)}
+              className="absolute top-2 right-2 text-white text-xl hover:text-gray-100"
+            >
+              &times;
+            </button>
+            <h3 className="text-lg text-blue-500 font-bold mb-4">Connect wallet</h3>
+            <button
+              onClick={connectMetaMask}
+              className="block w-full text-left px-4 py-2 bg-gray-600 text-blue-300 rounded-lg mb-2 hover:text-gray-100 hover:bg-gray-400"
+            >
+              <Image src="/metamask.png" alt="MetaMask" width={20} height={20} className="inline mr-2" />
+              MetaMask
+            </button>
+            <button
+              onClick={connectWalletConnect}
+              className="block w-full text-left px-4 py-2 bg-gray-600 text-blue-300 rounded-lg mb-2 hover:text-gray-100 hover:bg-gray-400"
+            >
+              <Image src="/walletconnect.jpg" alt="WalletConnect" width={20} height={20} className="inline mr-2" />
+              WalletConnect
+            </button>
+          </div>
+        </div>
+      )}
 
-      <h3 className="text-lg text-blue-500 font-bold mb-4">Connect wallet</h3>
-      
-      <button
-        onClick={connectMetaMask}
-        className="block w-full text-left px-4 py-2 bg-gray-600 text-blue-300 rounded-lg mb-2 hover:text-gray-100 hover:bg-gray-400"
-      >
-        <Image src="/metamask.png" alt="MetaMask" width={20} height={20} className="inline mr-2" />
-        MetaMask
-      </button>
-
-      <button
-        onClick={connectWalletConnect}
-        className="block w-full text-left px-4 py-2 bg-gray-600 text-blue-300 rounded-lg mb-2 hover:text-gray-100 hover:bg-gray-400"
-      >
-        <Image src="/walletconnect.jpg" alt="WalletConnect" width={20} height={20} className="inline mr-2" />
-        WalletConnect
-      </button>
-    </div>
-  </div>
-)}
-
+      {/* Token Display Section */}
+      {/* {tokens.length > 0 && (
+        <div className="p-4">
+          <h3 className="text-lg text-blue-400 font-bold">Tokens:</h3>
+          <ul className="mt-2 space-y-2">
+            {tokens.map((token, index) => (
+              <li key={index} className="bg-gray-800 p-3 rounded-lg flex justify-between">
+                <span className="text-white">{token.name} ({token.symbol})</span>
+                <span className="text-green-400">{parseFloat(token.balance).toFixed(4)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )} */}
     </header>
   );
 }
