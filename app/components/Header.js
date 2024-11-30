@@ -107,7 +107,7 @@ export default function Header() {
               onClick={() => setShowWalletOptions(true)}
               className="bg-[#0F123D] text-blue-500 text-xs border border-blue-500 px-3 hover:bg-sky-900 font-bold py-2 rounded-xl flex items-center gap-1"
             >
-              <Image src="/metamask.png" alt="MetaMask" width={20} height={20} />
+              {/* <Image src="/metamask.png" alt="MetaMask" width={20} height={20} /> */}
               Connect Wallet
             </button>
           )}
