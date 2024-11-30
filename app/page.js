@@ -21,14 +21,15 @@ export default function Home() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
 
-  useEffect(() => {
-    const updateLineNumbers = () => {
-      if (!csvText) return ""; 
-      const lines = csvText.split("\n");
-      return lines.map((_, index) => index + 1).join("\n");
-    };
-    setLineNumbers(updateLineNumbers());
-  }, [csvText]);
+ // Update line numbers whenever `csvText` changes
+ useEffect(() => {
+  const updateLineNumbers = () => {
+    const lines = csvText.split("\n");
+    return lines.map((_, index) => index + 1).join("\n");
+  };
+  setLineNumbers(updateLineNumbers());
+}, [csvText]);
+
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -235,22 +236,21 @@ export default function Home() {
               </button>
             </div>
             <div className="flex border border-gray-500 rounded h-32 overflow-hidden">
-              <pre
-                className="bg-[#0F123D] text-gray-500 px-3 py-2 text-right"
-                style={{ minWidth: "2.5rem" }}
-              >
-                {lineNumbers}
-              </pre>
-              <textarea
-                placeholder="Insert your CSV here"
-                className={`w-full bg-[#0F123D] text-white px-4 py-2 rounded-none resize-none h-32 ${
-                  csvError ? "border-red-500" : "border-gray-500"
-                }`}
-                value={csvText}
-                onChange={handleCsvTextChange}
-                
-              />
-            </div>
+      <pre
+        className="text-gray-500 px-3 py-2 text-right"
+        style={{ minWidth: "2.5rem" }}
+      >
+        {lineNumbers}
+      </pre>
+      <textarea
+        placeholder="Insert your CSV here"
+        className={`w-full bg-[#0F123D] text-white px-4 py-2 rounded-none resize-none h-32 ${
+          csvText ? "border-gray-500" : "border-red-500"
+        }`}
+        value={csvText}
+        onChange={handleCsvTextChange}
+      />
+    </div>
             <div className="absolute right-2 bottom-[-1rem]">
               <input
                 type="file"
