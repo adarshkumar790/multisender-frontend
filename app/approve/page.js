@@ -77,7 +77,7 @@ function ApproveContent() {
         <div className="flex flex-wrap justify-center items-center mb-8">
           <div className="flex items-center space-x-4">
         
-            <Step stepNumber={1} label="Prepare" isActive={status === "Prepare"} />
+            <Step stepNumber={1}  label="Prepare" isActive={status === "Prepare"} />
             <div className="h-6 border-l border-gray-500"></div>
             
             <Step stepNumber={2} label="Approve" isActive={status === "Approve"} />

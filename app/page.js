@@ -143,18 +143,18 @@ export default function Home() {
   const { valid, invalid } = parseCsv();
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-60 text-white flex flex-col items-center">
-      <main className="flex flex-col items-center mt-10 w-full max-w-2xl bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 rounded-2xl shadow-lg p-6 bg-opacity-80 backdrop-blur-md">
+    <div className="min-h-screen bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 text-white flex flex-col items-center">
+      <main className="flex flex-col items-center mt-10 w-full max-w-2xl  rounded-2xl  p-6">
         <div className="flex items-center gap-2 mb-6">
           <div
             className={`flex items-center gap-2 ${
               status >= 1 ? "bg-green-500" : "bg-gray-500"
-            } text-white rounded-full w-8 h-8 justify-center`}
+            } text-white rounded-full w-8 h-8 justify-center `} 
           >
             <span>1</span>
           </div>
           <div className="text-xs font-bold text-blue-700">Prepare</div>
-          <div className="h-6 border-l border-gray-500"></div>
+          <div className="h-6"></div>
           <div
             className={`flex items-center gap-2 ${
               status >= 2 ? "bg-green-500" : "bg-gray-500"
@@ -174,8 +174,8 @@ export default function Home() {
           <div className="text-xs font-bold text-blue-700">Multisend</div>
         </div>
 
-        <div className="w-full bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 rounded-lg p-4">
-          <div className="w-full mb-6">
+        <div className="w-full bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 border border-700 rounded-lg p-4">
+          <div className="w-full mb-6 ">
             <label className="block text-xs font-bold mb-2">Token Address</label>
             <div className="flex items-center gap-2">
                <div className="relative w-full">

@@ -16,6 +16,7 @@ export default function Header() {
   const networks = [
     "Ethereum Mainnet",
     "BNB Smart Chain",
+    "Polygon (MATIC)"
   ];
 
   const connectMetaMask = async () => {
