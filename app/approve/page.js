@@ -24,7 +24,6 @@ function ApproveContent() {
   const [insufficientETH, setInsufficientETH] = useState(false);
 
   useEffect(() => {
-    // Ensure searchParams is available before accessing it
     if (!searchParams) return;
 
     const validData = searchParams.get("validAddresses");
@@ -33,11 +32,10 @@ function ApproveContent() {
     if (validData) setValidAddresses(JSON.parse(validData));
     if (invalidData) setInvalidAddresses(JSON.parse(invalidData));
 
-    // Set up Ethereum provider
+  
     const initProvider = new ethers.BrowserProvider(window.ethereum);
     setProvider(initProvider);
 
-    // Get account and balance
     const getAccountInfo = async () => {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       setUserAddress(accounts[0]);
@@ -48,15 +46,12 @@ function ApproveContent() {
     getAccountInfo();
   }, [searchParams]);
 
-  // Calculate total ETH of all recipients and check if balance is sufficient
   useEffect(() => {
     let total = 0;
     validAddresses.forEach((entry) => {
       total += parseFloat(entry.amount);
     });
     setTotalETH(total);
-
-    // Check if totalETH is greater than accountETH
     setInsufficientETH(total > parseFloat(accountETH));
   }, [validAddresses, accountETH]);
 
@@ -72,22 +67,22 @@ function ApproveContent() {
         pathname: "/multisend",
         query: { validAddresses: JSON.stringify(validAddresses) },
       });
-    }, 1000); // Simulate processing time for approval
+    }, 1000); 
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 text-white">
       <div className="max-w-4xl mx-auto py-12 px-6">
-        {/* Steps Header */}
+      
         <div className="flex flex-wrap justify-center items-center mb-8">
           <div className="flex items-center space-x-4">
-            {/* Prepare Step */}
+        
             <Step stepNumber={1} label="Prepare" isActive={status === "Prepare"} />
             <div className="h-6 border-l border-gray-500"></div>
-            {/* Approve Step */}
+            
             <Step stepNumber={2} label="Approve" isActive={status === "Approve"} />
             <div className="h-6 border-l border-gray-500"></div>
-            {/* Multisend Step */}
+            
             <Step stepNumber={3} label="Multisend" isActive={status === "Multisend"} />
           </div>
         </div>
@@ -105,8 +100,6 @@ function ApproveContent() {
               </div>
             </div>
           </div>
-
-          {/* Valid and Invalid Addresses */}
           <div className="bg-gradient-to-r from-[#1e293b] to-[#0F123D] bg-opacity-80 p-6 rounded-lg text-xs text-blue-400">
             <h3 className="text-lg font-semibold mb-4">Valid Addresses</h3>
             <div className="space-y-2">
@@ -134,7 +127,7 @@ function ApproveContent() {
               )}
             </div>
 
-            {/* Insufficient ETH Message */}
+        
             {insufficientETH && (
               <div className="bg-red-600 text-white p-4 rounded-lg mt-4">
                 <p>

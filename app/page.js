@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FaCrown, FaEthereum, FaCoins, FaFileCsv } from "react-icons/fa"; // Import additional icons
-import Image from "next/image"; // For MetaMask logo
+import { FaCrown, FaEthereum, FaCoins, FaFileCsv } from "react-icons/fa"; 
+import Image from "next/image"; 
 import Web3 from "web3";
 import Link from "next/link";
 import Moralis from "moralis";
@@ -10,9 +10,9 @@ import { EvmChain } from "@moralisweb3/common-evm-utils";
 export default function Home() {
   const [csvFile, setCsvFile] = useState(null);
   const [csvText, setCsvText] = useState("");
-  const [lineNumbers, setLineNumbers] = useState(""); // Line numbers state
+  const [lineNumbers, setLineNumbers] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [status, setStatus] = useState(1); // 1: Prepare, 2: Approve, 3: Multisend
+  const [status, setStatus] = useState(1);
   const [walletAddress, setWalletAddress] = useState("");
   const [ethBalance, setEthBalance] = useState("");
   const [csvError, setCsvError] = useState(false);
@@ -21,10 +21,9 @@ export default function Home() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
 
-  // Update line numbers dynamically whenever csvText changes
   useEffect(() => {
     const updateLineNumbers = () => {
-      if (!csvText) return ""; // Handle empty or undefined csvText
+      if (!csvText) return ""; 
       const lines = csvText.split("\n");
       return lines.map((_, index) => index + 1).join("\n");
     };
@@ -99,14 +98,13 @@ export default function Home() {
       });
 
       const tokenData = response.toJSON();
-      setTokens(tokenData); // Save tokens in state
+      setTokens(tokenData); 
       console.log(tokenData);
     } catch (error) {
       console.error("Error fetching token balances:", error);
     }
   };
 
-  // Connect wallet using MetaMask
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
@@ -119,9 +117,7 @@ export default function Home() {
         setWalletAddress(userAddress);
         setEthBalance(web3.utils.fromWei(balance, "ether"));
 
-        // Fetch token balances
         fetchTokens(userAddress);
-        // setShowWalletOptions(false); // Close modal after connection
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
@@ -130,7 +126,6 @@ export default function Home() {
     }
   };
 
-  // Handle token selection
   const handleTokenClick = (token) => {
     setSelectedToken(token.name);
     setDropdownVisible(false);
