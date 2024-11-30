@@ -2,6 +2,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { ethers } from "ethers";
+import Image from "next/image";
 
 export default function Approve() {
   return (
@@ -162,16 +163,20 @@ function ApproveContent() {
           </div>
 
           {/* Support Link */}
-          <div className="mt-8 text-center">
-            <button
-              onClick={() => window.open("https://t.me/YourTelegramGroup", "_blank")}
-              className="bg-blue-700 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-            >
-              Support System
-            </button>
-          </div>
+         
         </div>
+        <div className="mt-8 text-center mb-5">
+         
+         <button
+         
+           onClick={() => window.open("https://t.me/YourTelegramGroup", "_blank")}
+           className="text-white  rounded-xl"
+         >
+            <Image src="/ask.png" alt="MetaMask" width={40} height={30} />
+         </button>
+       </div>
       </div>
+      
     </div>
   );
 }
