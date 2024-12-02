@@ -151,7 +151,7 @@ export default function Home() {
         const balance = await web3.eth.getBalance(accounts[0]);
         const userAddress = accounts[0];
   
-        // Fetch the chainId of the connected network
+      
         const chainId = await window.ethereum.request({ method: "eth_chainId" });
         console.log("Connected chainId:", chainId);
   
