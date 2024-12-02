@@ -21,7 +21,6 @@ export default function Home() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
 
- // Update line numbers whenever `csvText` changes
  useEffect(() => {
   const updateLineNumbers = () => {
     const lines = csvText.split("\n");
@@ -85,40 +84,83 @@ export default function Home() {
     return { valid, invalid };
   };
 
-  const fetchTokens = async (address) => {
-    const chain = EvmChain.HOLESKY || EvmChain.ETHEREUM;
-
+  const fetchTokens = async (address, chainId) => {
+    let chain;
+    if (parseInt(chainId, 16) === 10200) {
+      chain = EvmChain.GNOSIS_TESTNET; 
+      console.log("Fetching tokens for Gnosis Testnet...");
+    } else if (parseInt(chainId, 16) === 17000) {
+      chain = EvmChain.HOLESKY; 
+      console.log("Fetching tokens for Holesky Testnet...");
+    } else if (parseInt(chainId, 16) === 56) {
+      chain = EvmChain.BSC;
+      console.log("Fetching tokens for BSC...");      
+    } 
+    else if (parseInt(chainId, 16) === 80001) {
+      chain = EvmChain.MUMBAI;
+      console.log("Fetching tokens for Mumbai Testnet...");
+    }
+    else if (parseInt(chainId, 16) === 137){
+      chain = EvmChain.POLYGON;
+      console.log("Fetching tokens for Polygon...");
+    }
+    else if (parseInt(chainId, 16) === 80002) {
+      chain = EvmChain.POLYGON_AMOY;
+      console.log("Fetching tokens for Polygon AMOY...");
+    }
+    else if (parseInt(chainId, 16) === 1) {
+      chain = EvmChain.ETHEREUM;
+      console.log("Fetching tokens for Ethereum Mainnet...");
+    }
+     else {
+      console.error("Unsupported network connected.");
+      alert("Please connect to Gnosis or Holesky network.");
+      return;
+    }
+    
+  
     await Moralis.start({
       apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijk2Yzg5ZjcwLWRiN2UtNDE3MC05Y2UxLTZmZGFmNDkwYjg4NCIsIm9yZ0lkIjoiMzA2NjUyIiwidXNlcklkIjoiMzE1MDIwIiwidHlwZUlkIjoiMGYxNzcxMjMtYzVkZC00MTY3LWE0NzYtZjM0NWEyMzNkZmNmIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODczMjE3MDcsImV4cCI6NDg0MzA4MTcwN30.H_LYqFvB7WFYf0kn7eVU_EIy1YzRFivFyhhz84hr8nM", // Replace with your Moralis API key
     });
-
+  
     try {
       const response = await Moralis.EvmApi.token.getWalletTokenBalances({
         address,
         chain,
       });
-
+  
       const tokenData = response.toJSON();
-      setTokens(tokenData); 
-      console.log(tokenData);
+      setTokens(tokenData);
+      console.log("Fetched tokens:", tokenData);
     } catch (error) {
       console.error("Error fetching token balances:", error);
     }
   };
-
+  
   const connectWallet = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
         const web3 = new Web3(window.ethereum);
+  
+        // Request MetaMask accounts
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const accounts = await web3.eth.getAccounts();
+        console.log("Connected accounts:", accounts);
+  
+        // Fetch the balance of the first account
         const balance = await web3.eth.getBalance(accounts[0]);
         const userAddress = accounts[0];
-
+  
+        // Fetch the chainId of the connected network
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        console.log("Connected chainId:", chainId);
+  
+        // Set wallet and balance details
         setWalletAddress(userAddress);
         setEthBalance(web3.utils.fromWei(balance, "ether"));
-
-        fetchTokens(userAddress);
+  
+        // Fetch tokens based on the connected network
+        fetchTokens(userAddress, chainId);
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
       }
@@ -126,6 +168,7 @@ export default function Home() {
       alert("MetaMask is not installed. Please install it to connect.");
     }
   };
+  
 
   const handleTokenClick = (token) => {
     setSelectedToken(token.name);
