@@ -12,11 +12,10 @@ export default function Home() {
   const gasCostPerTransaction = 0.00016; 
   const gasPrice = 3; 
 
-  // Flag to track if the component has mounted (hydration)
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setIsHydrated(true); // Mark the component as hydrated
+    setIsHydrated(true); 
 
     const urlParams = new URLSearchParams(window.location.search);
     const addresses = urlParams.get('totalAddresses'); 
@@ -39,9 +38,9 @@ export default function Home() {
     router.push("https://www.alchemy.com/gwei-calculator"); 
   };
 
-  // Don't render until hydration has occurred
+  
   if (!isHydrated) {
-    return null; // or return a loading spinner, or a skeleton screen
+    return null; 
   }
 
   return (

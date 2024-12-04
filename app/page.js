@@ -155,11 +155,10 @@ export default function Home() {
         const chainId = await window.ethereum.request({ method: "eth_chainId" });
         console.log("Connected chainId:", chainId);
   
-        // Set wallet and balance details
         setWalletAddress(userAddress);
         setEthBalance(web3.utils.fromWei(balance, "ether"));
   
-        // Fetch tokens based on the connected network
+      
         fetchTokens(userAddress, chainId);
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
