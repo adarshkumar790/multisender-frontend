@@ -1,15 +1,464 @@
-import { useContract, useSigner, useProvider } from 'wagmi';
+import { useContract, useAccount, useProvider, useSigner } from 'wagmi';
 import { ethers } from 'ethers';
-
+// Contract Address
+const CONTRACT_ADDRESS = "0x86889B10376dB115763050eba1Ed20b1d4Eb0fd3";
+// Contract ABI
 const CONTRACT_ABI = [
-  
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_feeReceiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_txFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_minTxFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_pack0price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_pack0validity",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newMinTxFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "MinTxFeeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "validity",
+        "type": "uint256"
+      }
+    ],
+    "name": "NewVipUser",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newTxFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "TxFeeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint8",
+        "name": "pid",
+        "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "validity",
+        "type": "uint256"
+      }
+    ],
+    "name": "VipPackUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addressToAdd",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_isVipTill",
+        "type": "uint256"
+      }
+    ],
+    "name": "addVip",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_pid",
+        "type": "uint8"
+      }
+    ],
+    "name": "becomeVip",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "noOfAddresses",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_newFeeReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "changeFeeReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feeReceiver",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addressToCheck",
+        "type": "address"
+      }
+    ],
+    "name": "isVip",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isVipTill",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minTxFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_addressesArray",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_amountsArray",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "multisendToken",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "recoverEthers",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "recoverTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addressToRemove",
+        "type": "address"
+      }
+    ],
+    "name": "removeVip",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_minTxfee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinTxFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_txFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTxFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_pid",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_validity",
+        "type": "uint256"
+      }
+    ],
+    "name": "setVipPacks",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "txFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "vipPacks",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "validity",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
 
-const CONTRACT_ADDRESS = "";
-
 export const useMultiSenderContract = () => {
-  const { data: signer } = useSigner();
+  const { address } = useAccount();
   const provider = useProvider();
+  const { data: signer } = useSigner();
 
   const contract = useContract({
     address: CONTRACT_ADDRESS,
@@ -17,143 +466,108 @@ export const useMultiSenderContract = () => {
     signerOrProvider: signer || provider,
   });
 
-  const randomAddressLength = async () => {
-    return await contract.randomAddressLength();
-  };
+  return { contract, address };
+};
 
-  const depositToken = async (_tokenContractAddress, _amount) => {
-    const tx = await contract.depositToken(_tokenContractAddress, _amount);
-    return tx.wait();
-  };
 
-  const becomeVip = async (value) => {
-    const tx = await contract.becomeVip({ value: ethers.utils.parseEther(value.toString()) });
-    return tx.wait();
-  };
+export const useBecomeVip = async (pid, value) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const addVip = async (_addressToAdd) => {
-    const tx = await contract.addVip(_addressToAdd);
-    return tx.wait();
-  };
+  try {
+    const tx = await contract.becomeVip(pid, { value: ethers.utils.parseEther(value.toString()) });
+    await tx.wait();
+    console.log("VIP Status Updated");
+  } catch (error) {
+    console.error("Error becoming VIP:", error);
+  }
+};
 
-  const removeVip = async (_addressToRemove) => {
-    const tx = await contract.removeVip(_addressToRemove);
-    return tx.wait();
-  };
 
-  const changeVipPrice = async (_newVipPrice) => {
-    const tx = await contract.changeVipPrice(_newVipPrice);
-    return tx.wait();
-  };
+export const useIsVip = async (userAddress) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const addRandomAddress = async (_addressesArray) => {
-    const tx = await contract.addRandomAddress(_addressesArray);
-    return tx.wait();
-  };
+  try {
+    const isVip = await contract.isVip(userAddress);
+    console.log("VIP Status:", isVip);
+    return isVip;
+  } catch (error) {
+    console.error("Error checking VIP status:", error);
+  }
+};
 
-  const changeRandomAddress = async (_addresses, _indices) => {
-    const tx = await contract.changeRandomAddress(_addresses, _indices);
-    return tx.wait();
-  };
 
-  const popRandomAddress = async (_numOfAdrToPop) => {
-    const tx = await contract.popRandomAddress(_numOfAdrToPop);
-    return tx.wait();
-  };
+export const useMultisendTokens = async (tokenAddress, recipients, amounts, value) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const deleteRandomAddress = async (_indices) => {
-    const tx = await contract.deleteRandomAddress(_indices);
-    return tx.wait();
-  };
+  try {
+    const tx = await contract.multisendToken(
+      tokenAddress,
+      recipients,
+      amounts,
+      { value: ethers.utils.parseEther(value.toString()) }
+    );
+    await tx.wait();
+    console.log("Tokens Multisend Successful");
+  } catch (error) {
+    console.error("Error in multisend tokens:", error);
+  }
+};
 
-  const setTxFee = async (_fee) => {
-    const tx = await contract.setTxFee(_fee);
-    return tx.wait();
-  };
 
-  const setMinTxFee = async (_fee) => {
-    const tx = await contract.setMinTxFee(_fee);
-    return tx.wait();
-  };
+export const useCalculateFee = async (numAddresses) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const sendTokenRandomSame = async (_tokenContractAddress, _amount, fromRandomAddressIndex, toRandomAddressIndex, value) => {
-    const tx = await contract.sendTokenRandomSame(_tokenContractAddress, _amount, fromRandomAddressIndex, toRandomAddressIndex, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
+  try {
+    const fee = await contract.calculateFee(numAddresses);
+    console.log("Transaction Fee:", ethers.utils.formatEther(fee.toString()), "ETH");
+    return fee;
+  } catch (error) {
+    console.error("Error calculating fee:", error);
+  }
+};
 
-  const sendTokenRandomDifferent = async (_tokenContractAddress, fromRandomAddressIndex, toRandomAddressIndex, _amountsArray, value) => {
-    const tx = await contract.sendTokenRandomDifferent(_tokenContractAddress, fromRandomAddressIndex, toRandomAddressIndex, _amountsArray, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
 
-  const sendTokenCustomDifferent = async (_tokenContractAddress, _addressesArray, _amountsArray, value) => {
-    const tx = await contract.sendTokenCustomDIfferent(_tokenContractAddress, _addressesArray, _amountsArray, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
+export const useRecoverTokens = async (tokenAddress, recipient, amount) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const sendTokenCustomSame = async (_tokenContractAddress, _amount, _addressesArray, value) => {
-    const tx = await contract.sendTokenCustomSame(_tokenContractAddress, _amount, _addressesArray, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
+  try {
+    const tx = await contract.recoverTokens(tokenAddress, recipient, ethers.utils.parseUnits(amount.toString(), 18));
+    await tx.wait();
+    console.log("Tokens Recovered Successfully");
+  } catch (error) {
+    console.error("Error recovering tokens:", error);
+  }
+};
 
-  const sendEthCustomSame = async (toAddressArray, _amount, value) => {
-    const tx = await contract.sendEthCustomSame(toAddressArray, _amount, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
 
-  const sendEthCustomDifferent = async (toAddressArray, _amountsArray, value) => {
-    const tx = await contract.sendEthCustomDifferent(toAddressArray, _amountsArray, {
-      value: ethers.utils.parseEther(value.toString()),
-    });
-    return tx.wait();
-  };
+export const useRecoverEthers = async (recipient, amount) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  const recoverTokens = async (_tokenContractAddress, _recipient, _amount) => {
-    const tx = await contract.recoverTokens(_tokenContractAddress, _recipient, _amount);
-    return tx.wait();
-  };
+  try {
+    const tx = await contract.recoverEthers(recipient, ethers.utils.parseEther(amount.toString()));
+    await tx.wait();
+    console.log("Ethers Recovered Successfully");
+  } catch (error) {
+    console.error("Error recovering ethers:", error);
+  }
+};
 
-  const recoverEthers = async (_recipient, _amount) => {
-    const tx = await contract.recoverEthers(_recipient, ethers.utils.parseEther(_amount.toString()));
-    return tx.wait();
-  };
 
-  const changeFeeReceiver = async (_newFeeReceiver) => {
-    const tx = await contract.changeFeeReceiver(_newFeeReceiver);
-    return tx.wait();
-  };
+export const useSetFeeReceiver = async (newFeeReceiver) => {
+  const { contract } = useMultiSenderContract();
+  if (!contract) throw new Error("Contract not initialized");
 
-  return {
-    randomAddressLength,
-    depositToken,
-    becomeVip,
-    addVip,
-    removeVip,
-    changeVipPrice,
-    addRandomAddress,
-    changeRandomAddress,
-    popRandomAddress,
-    deleteRandomAddress,
-    setTxFee,
-    setMinTxFee,
-    sendTokenRandomSame,
-    sendTokenRandomDifferent,
-    sendTokenCustomDifferent,
-    sendTokenCustomSame,
-    sendEthCustomSame,
-    sendEthCustomDifferent,
-    recoverTokens,
-    recoverEthers,
-    changeFeeReceiver,
-  };
+  try {
+    const tx = await contract.changeFeeReceiver(newFeeReceiver);
+    await tx.wait();
+    console.log("Fee Receiver Updated Successfully");
+  } catch (error) {
+    console.error("Error updating fee receiver:", error);
+  }
 };
